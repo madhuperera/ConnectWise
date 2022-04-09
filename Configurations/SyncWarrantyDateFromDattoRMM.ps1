@@ -1,5 +1,7 @@
 [CmdletBinding()]
 param (
+
+    # All ConnectWise Manage Parameters
     [Parameter()]
     [String] $CWM_Client_ID,
     [Parameter()]
@@ -9,9 +11,34 @@ param (
     [Parameter()]
     [String] $CWM_Company_ID,
     [Parameter()]
-    [String] $CWM_API_Base_URL = "https://aus.myconnectwise.net/v4_6_release/apis/3.0"
+    [String] $CWM_API_Base_URL = "https://aus.myconnectwise.net/v4_6_release/apis/3.0",
+
+    # All Datto RMM Parameters
+    [Parameter()]
+    [String] $DRMM_API_URL,
+    [Parameter()]
+    [String] $DRMM_Private_Key,
+    [Parameter()]
+    [String] $DRMM_Secret_Key,
+    [Parameter()]
+    [String] $DRMM_Client_Site_Name
 )
 
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Loading Datto RMM Module and authenticating to Datto Portal Online
+# _______________________________________________________________________________________________________________________________________________________________________________
+
+$params = @{
+    Url        =  $DRMM_API_URL
+    Key        =  $DRMM_Private_Key
+    SecretKey  =  $DRMM_Secret_Key
+}
+Import-Module DattoRmm
+Set-DrmmApiParameters @params
+
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Preparing Header to Authenticate to ConnectWise Manage
+# _______________________________________________________________________________________________________________________________________________________________________________
 
 $Base64Key = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$($CWM_Company_ID)+$($CWM_Public_Key):$($CWM_Private_Key)"))
 $Header = @{
@@ -20,11 +47,21 @@ $Header = @{
     'Content-Type'  = 'application/json'
 }
 
-
-# ____________________________________________________________________
-
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Please ignore... some test material
+# _______________________________________________________________________________________________________________________________________________________________________________
+<#
 $Configurations += invoke-restmethod -headers $Header -method GET -uri "$($CWM_Client_ID)/company/configurations?pageSize=1000&page=$i"
 $DattoLaptops = Invoke-restmethod -headers $Header -method GET -uri "$($CWM_API_Base_URL)/company/configurations?conditions=type/name='Datto Laptop'&pageSize=1000&page=$i"
+
+
+#>
+
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Getting All Devices in Datto Site
+# _______________________________________________________________________________________________________________________________________________________________________________
+
+
 
 # How to update Warranty Details
 $X = '[{"op": "add", "path": "warrantyExpirationDate", "value": "2022-04-07T05:13:57Z"}]'
@@ -34,6 +71,12 @@ $NewX = '[{"op": "replace", "path": "warrantyExpirationDate", "value": "2020-01-
 Invoke-restmethod -headers $Header -method PATCH -uri "$($CWM_API_Base_URL)/company/configurations/5606" -Body $NewX
 
 $DattoDevices
+
+
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Going through each device in Datto Site. Finding devices with Warranty Expiration Dete and querying ConnectWise Manage API for the same device to see if Warranty Expiration 
+# Date for the device in ConnectWise is configured. If not, update with the date froM Datto Device.
+# _______________________________________________________________________________________________________________________________________________________________________________
 
 foreach ($DDevice in $DattoDevices)
 {
