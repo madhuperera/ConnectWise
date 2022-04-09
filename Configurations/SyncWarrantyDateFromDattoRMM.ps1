@@ -54,6 +54,13 @@ $Header = @{
 $Configurations += invoke-restmethod -headers $Header -method GET -uri "$($CWM_Client_ID)/company/configurations?pageSize=1000&page=$i"
 $DattoLaptops = Invoke-restmethod -headers $Header -method GET -uri "$($CWM_API_Base_URL)/company/configurations?conditions=type/name='Datto Laptop'&pageSize=1000&page=$i"
 
+How to update Warranty Details
+
+$X = '[{"op": "add", "path": "warrantyExpirationDate", "value": "2022-04-07T05:13:57Z"}]'
+Invoke-restmethod -headers $Header -method PATCH -uri "$($CWM_API_Base_URL)/company/configurations/5606" -Body $X
+
+$NewX = '[{"op": "replace", "path": "warrantyExpirationDate", "value": "2020-01-10T00:00:00Z"}]'
+Invoke-restmethod -headers $Header -method PATCH -uri "$($CWM_API_Base_URL)/company/configurations/5606" -Body $NewX
 
 #>
 
@@ -61,17 +68,15 @@ $DattoLaptops = Invoke-restmethod -headers $Header -method GET -uri "$($CWM_API_
 # Getting All Devices in Datto Site
 # _______________________________________________________________________________________________________________________________________________________________________________
 
-
-
-# How to update Warranty Details
-$X = '[{"op": "add", "path": "warrantyExpirationDate", "value": "2022-04-07T05:13:57Z"}]'
-Invoke-restmethod -headers $Header -method PATCH -uri "$($CWM_API_Base_URL)/company/configurations/5606" -Body $X
-
-$NewX = '[{"op": "replace", "path": "warrantyExpirationDate", "value": "2020-01-10T00:00:00Z"}]'
-Invoke-restmethod -headers $Header -method PATCH -uri "$($CWM_API_Base_URL)/company/configurations/5606" -Body $NewX
-
-$DattoDevices
-
+if ($DRMM_Client_Site_Name)
+{
+    $DattoSite = Get-DrmmAccountSites | Where-Object {$_.name -like "*$($DRMM_Client_Site_Name)*"}
+    $DattoDevices = Get-DrmmSiteDevices -siteUid $($DattoSite.id)
+}
+else
+{
+    $DattoDevices = Get-DrmmAccountDevices
+}
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Going through each device in Datto Site. Finding devices with Warranty Expiration Dete and querying ConnectWise Manage API for the same device to see if Warranty Expiration 
