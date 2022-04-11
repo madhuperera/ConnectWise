@@ -15,7 +15,7 @@ param (
 
     # All Datto RMM Parameters
     [Parameter()]
-    [String] $DRMM_API_URL,
+    [String] $DRMM_API_URL = "https://syrah-api.centrastage.net",
     [Parameter()]
     [String] $DRMM_Private_Key,
     [Parameter()]
