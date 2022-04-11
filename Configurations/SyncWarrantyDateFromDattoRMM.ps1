@@ -75,7 +75,7 @@ $DattoDevices = $DattoDevices | Where-Object {$_.deviceType.category -eq "Deskto
 [int] $Current_Device_Count = 1
 foreach ($DDevice in $DattoDevices)
 {
-    Write-output "`n`n$($DDevice.hostname) -------------------------------- $Current_Device_Count out of $TotalDeviceCount"
+    Write-Host "`n`n$($DDevice.hostname) -------------------------------- $Current_Device_Count out of $TotalDeviceCount" -ForegroundColor Yellow
     if ($DDevice.warrantyDate)
     {
         [String] $ManagementLink = $DDevice.portalUrl
@@ -86,15 +86,15 @@ foreach ($DDevice in $DattoDevices)
             $CWM_Device = Invoke-restmethod -headers $Header -method GET -uri $NewCW_URI
             if ($CWM_Device.warrantyExpirationDate)
             {
-                Write-Output "$($DDevice.hostname) -------------------------------- Warranty Expiration Date is already configured in ConnectWise"
+                Write-Host "$($DDevice.hostname) -------------------------------- Warranty Expiration Date is already configured in ConnectWise" -ForegroundColor Green
                 
             }
             else
             {
-                Write-Output "$($DDevice.hostname) -------------------------------- Setting up Warranty Expiration Date in ConnectWise Manage"
+                Write-Host "$($DDevice.hostname) -------------------------------- Setting up Warranty Expiration Date in ConnectWise Manage" -ForegroundColor White
                 [String] $CWM_DeviceWarrantyDate = ""
                 $CWM_DeviceWarrantyDate = $DDevice.warrantyDate + "T00:00:00Z"
-                Write-Output "$($DDevice.hostname) -------------------------------- Date to Update is $CWM_DeviceWarrantyDate"
+                Write-Host "$($DDevice.hostname) -------------------------------- Date to Update is $CWM_DeviceWarrantyDate" -ForegroundColor White
                 
                 $CWM_API_BodyWithWarranty = '[{"op": "add", "path": "warrantyExpirationDate", "value": "' + $CWM_DeviceWarrantyDate + '"}]'
                 
@@ -102,18 +102,18 @@ foreach ($DDevice in $DattoDevices)
                 $NewCWM_DeviceUpdateLink = "$($CWM_API_Base_URL)/company/configurations/$CWM_DeviceID"
 
                 $Results = Invoke-restmethod -headers $Header -method PATCH -uri $NewCWM_DeviceUpdateLink -Body $CWM_API_BodyWithWarranty
-                Write-Output "$($DDevice.hostname) -------------------------------- Successfully updated the date with $($Results.warrantyExpirationDate)"
+                Write-Host "$($DDevice.hostname) -------------------------------- Successfully updated the date with $($Results.warrantyExpirationDate)" -ForegroundColor Green
             }
             
         }
         else
         {
-            Write-Output "$($DDevice.hostname) -------------------------------- Missing Management Link from Datto!"    
+            Write-Host "$($DDevice.hostname) -------------------------------- Missing Management Link from Datto!" -ForegroundColor Red
         }
     }
     else
     {
-        Write-Output "$($DDevice.hostname) -------------------------------- Warranty Expiration Date is missing in Datto!"   
+        Write-Host "$($DDevice.hostname) -------------------------------- Warranty Expiration Date is missing in Datto!" -ForegroundColor DarkRed
     }
 
     $Current_Device_Count += 1
