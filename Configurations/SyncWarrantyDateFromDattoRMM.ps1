@@ -95,14 +95,21 @@ foreach ($DDevice in $DattoDevices)
                 [String] $CWM_DeviceWarrantyDate = ""
                 $CWM_DeviceWarrantyDate = $DDevice.warrantyDate + "T00:00:00Z"
                 Write-Host "$($DDevice.hostname) -------------------------------- Date to Update is $CWM_DeviceWarrantyDate" -ForegroundColor White
-                
+
                 $CWM_API_BodyWithWarranty = '[{"op": "add", "path": "warrantyExpirationDate", "value": "' + $CWM_DeviceWarrantyDate + '"}]'
-                
                 [String] $CWM_DeviceID = $CWM_Device.id
                 $NewCWM_DeviceUpdateLink = "$($CWM_API_Base_URL)/company/configurations/$CWM_DeviceID"
 
-                $Results = Invoke-restmethod -headers $Header -method PATCH -uri $NewCWM_DeviceUpdateLink -Body $CWM_API_BodyWithWarranty
-                Write-Host "$($DDevice.hostname) -------------------------------- Successfully updated the date with $($Results.warrantyExpirationDate)" -ForegroundColor Green
+
+                try
+                {
+                    $Results = Invoke-restmethod -headers $Header -method PATCH -uri $NewCWM_DeviceUpdateLink -Body $CWM_API_BodyWithWarranty
+                    Write-Host "$($DDevice.hostname) -------------------------------- Successfully updated the date with $($Results.warrantyExpirationDate)" -ForegroundColor Green
+                }
+                catch
+                {
+                    Write-Host "$($DDevice.hostname) -------------------------------- Error updating this data to ConnectWise" -ForegroundColor Red
+                }  
             }
             
         }
