@@ -21,7 +21,11 @@ param (
     [Parameter()]
     [String] $DRMM_Secret_Key,
     [Parameter()]
-    [String] $DRMM_Client_Site_Name
+    [String] $DRMM_Client_Site_Name,
+
+    # All Other Parameters
+    [Parameter()]
+    [String] $Report_Location # Ex: C:\Reports\
 )
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -72,8 +76,17 @@ $DattoDevices = $DattoDevices | Where-Object {$_.deviceType.category -eq "Deskto
 
 [int] $TotalDeviceCount = $DattoDevices.count
 [int] $Current_Device_Count = 1
+
+# Array to store devices for final CSV Report
+$FinalDeviceArray = @()
+
 foreach ($DDevice in $DattoDevices)
 {
+    # Variables to Manage Final Report
+    [String] $Status = "All Good"
+    [String] $NameInCW = ""
+    [String] $DattoSiteName = $DDevice.siteName
+
     Write-Host "`n`n$($DDevice.hostname) -------------------------------- $Current_Device_Count out of $TotalDeviceCount" -ForegroundColor Yellow
     if ($DDevice.portalUrl)
     {
@@ -87,21 +100,39 @@ foreach ($DDevice in $DattoDevices)
         
         if ($CWM_DattoDevice)
         {
+            $NameInCW = $CWM_DattoDevice.name
+
             if ($CWM_DattoDevice.name -ne $DDevice.hostname)
             {
+                $Status = "Name Mismatch"
                 Write-Host "$($DDevice.hostname) -------------------------------- Name in CW is $($CWM_DattoDevice.name) and Name in Datto is $($DDevice.hostname), please fix." -ForegroundColor DarkYellow
             }
         }
         else 
         {
+            $Status = "Missing in CW"
             Write-Host "$($DDevice.hostname) -------------------------------- No Datto Variant in ConnectWise. This device is probably missing in ConnectWise" -ForegroundColor DarkRed
         }
         
     }
     else
     {
+        $Status = "Missing in CW"
         Write-Host "$($DDevice.hostname) -------------------------------- No Management Link Found. This device is probably missing in ConnectWise." -ForegroundColor DarkRed
     }
 
+
+    # New Object to store all data
+    $FinalDeviceProps = @{
+        'DattoHostName' = $DDevice.hostname;
+        'Status' = $Status;
+        'Name in CW' = $NameInCW;
+        'Site Name' = $DattoSiteName
+    }
+    $PSObject = New-Object -TypeName PSObject -Property $FinalDeviceProps
+    $FinalDeviceArray += $PSObject
+
     $Current_Device_Count += 1
 }
+
+$FinalDeviceArray | Export-Csv -Path "$($Report_Location)AllDevices.csv" -NoTypeInformation
