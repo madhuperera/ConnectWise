@@ -1,3 +1,31 @@
+<#
+.Description
+This script will help you to get a list of Devices in Datto RMM and compare them to the Configurations in 
+ConnectWise Manage for any missing device or a name mismatch.
+
+This Script will require API with Read Only access to Configurations in ConnectWise Manage and 
+Devices in Datto RMM.
+.PARAMETER database
+Coming Soon
+.PARAMETER region
+Coming Soon
+.PARAMETER Comment
+Coming Soon
+.EXAMPLE
+How to run the Script against one Datto RMM Site
+
+PS> .\CheckForDattoDeviceNameChanges.ps1 -CWM_Client_ID <intentionally_left_blank> -CWM_Public_Key <intentionally_left_blank> 
+-CWM_Private_Key -CWM_Company_ID <intentionally_left_blank> -DRMM_Private_Key <intentionally_left_blank> 
+-DRMM_Secret_Key <intentionally_left_blank> -DRMM_Client_Site_Name "Test Site Name" -Report_Location "C:\Reports\"
+.EXAMPLE
+How to run the Script against All Datto RMM Sites
+
+PS> .\CheckForDattoDeviceNameChanges.ps1 -CWM_Client_ID <intentionally_left_blank> -CWM_Public_Key <intentionally_left_blank> 
+-CWM_Private_Key -CWM_Company_ID <intentionally_left_blank> -DRMM_Private_Key <intentionally_left_blank> 
+-DRMM_Secret_Key <intentionally_left_blank> -Report_Location "C:\Reports\"
+.SYNOPSIS
+PowerShell Script to find out missing devices or the ones with different names in ConnectWise Manage.
+#>
 [CmdletBinding()]
 param (
 
@@ -22,6 +50,8 @@ param (
     [String] $DRMM_Secret_Key,
     [Parameter()]
     [String] $DRMM_Client_Site_Name,
+    [Parameter()]
+    [bool] $DRMM_ExcludeOnDemandDevices = $false, # Reserved for future development
 
     # All Other Parameters
     [Parameter()]
