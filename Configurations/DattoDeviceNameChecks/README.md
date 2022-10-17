@@ -11,7 +11,12 @@ If you have any question about any of the scripts or you have an idea for a Powe
 - Datto RMM APIs to retrieve Devices
 
 ### Datto RMM PowerShell Module
-Please open up 
+How to check if the current session has Datto RMM Module installed.
+```
+Get-InstalledModule DattoRmm
+```
+![image](https://user-images.githubusercontent.com/101617608/196299597-3c773f17-9d52-4fe8-acb2-f344a81a3bd6.png)
+
 
 ## Feedback
 Constructive feedback is always appreciated. I am doing most of these Scripts in my own Personal time, so I will not be able to update these as often as I would have liked to. If you find any issues with the Scripts, please leave a comment and I will try my best to get it sorted and update the Script. If you have an idea for a Script that could be useful for yourself as well as others, you can contact me using any of the Social Media platforms below:
