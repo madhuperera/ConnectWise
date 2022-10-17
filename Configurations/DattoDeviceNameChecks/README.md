@@ -25,8 +25,10 @@ Find-Module DattoRmm
 
 How to install the PowerShell Module
 ```
-Install-Module DattoRmm -Force
+Install-Module DattoRmm -Scope CurrentUser -Force
 ```
+![image](https://user-images.githubusercontent.com/101617608/196300952-da6fd78c-46b0-4ccf-9e53-e02ea654874e.png)
+
 Please visit GitHub for more information [Datto RMM PowerShell Module](https://github.com/aaronengels/DattoRMM).
 
 ## Feedback
